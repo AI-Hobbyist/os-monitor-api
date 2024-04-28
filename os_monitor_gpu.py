@@ -37,7 +37,7 @@ def get_speed(nic):
     return up, dn, sent, recv
 
 def get_gpu(gpu):
-    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+    handle = pynvml.nvmlDeviceGetHandleByIndex(gpu)
     memory = pynvml.nvmlDeviceGetMemoryInfo(handle)
     usage = pynvml.nvmlDeviceGetUtilizationRates(handle)
     total = int(memory.total)
