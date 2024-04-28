@@ -1,9 +1,10 @@
-import psutil, time, argparse
+import psutil, time, argparse, pynvml
 from flask import Flask, jsonify, request
 
 net_counter = psutil.net_io_counters(pernic=True)
 for interface, stats in net_counter.items():
     print(f"网卡：{interface} ,网卡信息：{stats}")
+pynvml.nvmlInit()
 
 def get_cpu(interval):
     cpu = psutil.cpu_percent(interval)
@@ -34,6 +35,17 @@ def get_speed(nic):
     sent = s1.bytes_sent
     recv = s1.bytes_recv
     return up, dn, sent, recv
+
+def get_gpu(gpu):
+    handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+    memory = pynvml.nvmlDeviceGetMemoryInfo(handle)
+    usage = pynvml.nvmlDeviceGetUtilizationRates(handle)
+    total = int(memory.total)
+    free = int(memory.free)
+    used = int(memory.used)
+    gpu_usage = float(usage.gpu)
+    mem_usage = used / total * 100
+    return total, free, used, gpu_usage, mem_usage
 
 def get_disk(disk):
     disk = psutil.disk_usage(disk)
@@ -112,10 +124,17 @@ def disk_status():
         return jsonify(dic), 405
 
 @app.route('/gpu', methods=["GET","POST"])
-def disk_status():
+def gpu_status():
     if request.method == "POST":
+        data = request.get_json()
+        gpu_num = data['gpu']
+        total, free, used, gpu_usage, mem_usage = get_gpu(gpu_num)
         data_dict = {
-            "msg": "WIP"
+            "total": total,
+            "free": free,
+            "used": used,
+            "gpu": gpu_usage,
+            "mem": mem_usage
         }
         return jsonify(data_dict), 200
         
