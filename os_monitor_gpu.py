@@ -127,7 +127,7 @@ def disk_status():
 def gpu_status():
     if request.method == "POST":
         data = request.get_json()
-        gpu_num = data['gpu']
+        gpu_num = int(data['gpu'])
         total, free, used, gpu_usage, mem_usage = get_gpu(gpu_num)
         data_dict = {
             "total": total,
