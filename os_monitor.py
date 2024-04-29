@@ -12,10 +12,10 @@ def get_cpu(interval):
 def get_mem():
     mem = psutil.virtual_memory()
     total = mem.total
-    free = mem.free
+    available = mem.available
     used = mem.used
     percent = mem.percent
-    return total, free, used, percent
+    return total, available, used, percent
 
 def get_swap():
     swap = psutil.swap_memory()
@@ -50,7 +50,7 @@ def hardware_status():
         data = request.get_json()
         interval = data['interval']
         cpu = get_cpu(interval)
-        total_mem, free_mem, used_mem, mem_percent = get_mem()
+        total_mem, available_mem, used_mem, mem_percent = get_mem()
         total_swap, free_swap, used_swap, swap_percent = get_swap()
         data_dict = {
             "cpu": {
@@ -58,7 +58,7 @@ def hardware_status():
             },
             "mem": {
                 "total": total_mem,
-                "free": free_mem,
+                "available": available_mem,
                 "used": used_mem,
                 "percent": mem_percent
             },
